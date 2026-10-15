@@ -1,0 +1,59 @@
+name: Cipher
+options:
+  bundleIdPrefix: com.utkarsh
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+packages:
+  OfflineIntelligenceKit:
+    path: ../OfflineIntelligenceKit
+  OfflineIntelligenceMLX:
+    path: ../OfflineIntelligenceKit/MLX
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "2"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+targets:
+  Cipher:
+    type: application
+    platform: iOS
+    sources:
+      - path: Cipher
+        excludes: ["Resources/Models"]
+      - path: Cipher/Resources/Models
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: OfflineIntelligenceKit
+        product: OfflineIntelligence
+      - package: OfflineIntelligenceMLX
+        product: OfflineIntelligenceMLX
+    info:
+      path: Cipher/Info.plist
+      properties:
+        CFBundleDisplayName: Cipher
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        ITSAppUsesNonExemptEncryption: false
+        NSAppleMusicUsageDescription: Cipher reads songs from your music library so it can write out their lyrics as bars.
+        NSSpeechRecognitionUsageDescription: Cipher listens to a recording on this device to write out its lyrics.
+        NSMicrophoneUsageDescription: Cipher records a take so it can write out the words and read how they were delivered.
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.utkarsh.cipher
+        CODE_SIGN_ENTITLEMENTS: Cipher/Cipher.entitlements
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        TARGETED_DEVICE_FAMILY: "1"
+    postCompileScripts:
+      # This project lives under ~/Documents, which iCloud Drive decorates with
+      # extended attributes. codesign refuses to sign a bundle carrying them, so
+      # strip them after the bundle is assembled and before signing.
+      - script: /usr/bin/xattr -cr "$TARGET_BUILD_DIR/$WRAPPER_NAME" || true
+        name: Strip extended attributes
